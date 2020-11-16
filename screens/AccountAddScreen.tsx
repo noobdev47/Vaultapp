@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Image, StyleSheet, TextInput, View } from 'react-native';
+import { Button, Image, StyleSheet, TextInput, ToastAndroid, View } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 interface AddScreenState {
     id: number;
@@ -14,7 +15,9 @@ interface AddScreenState {
     passText: string;
 }
 
-interface Props {}
+interface Props {
+    navigation: any;
+}
 
 class AccountAddScreen extends Component<Props, AddScreenState> {
     passTextInput: React.RefObject<TextInput>;
@@ -27,15 +30,42 @@ class AccountAddScreen extends Component<Props, AddScreenState> {
         this.titleTextInput = React.createRef();
     }
 
+    async componentDidMount() {
+        //Set Id for next account in start by counting previous accounts stored.
+        let key = 1;
+        
+        for(let i = key; i <= 10; i++){
+            let account = await SecureStore.getItemAsync(i.toString());
+            if(account !== null)
+                key++;
+            else
+                continue;
+        }
+
+        this.setState({id: key + 1});
+    }
+
     render() {
+        //Clears TextInputs
         const clear = () => {
             this.titleTextInput.current?.clear();
             this.passTextInput.current?.clear();
         }
 
-        const add = (title: string, pass: string, site: string, id: number) => {
-            let account = {name: title, password: pass, website: site, id: id + 1};
-            //Add Storage Solution
+        //Adds Account to Storage
+        const add = async (title: string, pass: string, site: string, id: number) => {
+            let account = {accountTitle: title, accountPass: pass, site: site, id: id};
+            const key = account.id.toString();
+            storage(await SecureStore.isAvailableAsync(), account, key);
+        }
+
+        //Dedicated function for Storage Purpose
+        const storage = async (storeAvailable: boolean, account: any, key: string) => {
+            if(storeAvailable === true) {
+                SecureStore.setItemAsync(key, JSON.stringify(account));
+                ToastAndroid.show("Account Added", ToastAndroid.SHORT);
+           } else
+                console.log("Storage not Available...");
         }
         return (
             <View style={styles.container}>

@@ -1,58 +1,138 @@
 import React, { Component } from "react";
-import { StyleSheet, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, ToastAndroid, View } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import ItemSeparator from "../components/ItemSeperator";
 import ListItem from "../components/ListItem";
 import { FloatingAction } from "react-native-floating-action";
-
+import * as SecureStore from 'expo-secure-store';
+import ListEmpty from "../components/ListEmpty";
 
 interface Account {
     id: number;
     site: string;
     accountTitle: string;
     accountPass: string;
-  }
+}
+
+interface state {
+  accounts: Account[];
+  selectedAccounts: number[];
+  refreshing: boolean;
+}
 
 interface Props {
   navigation: any;
 }
 
-class AccountsScreen extends Component<Props> {
+class AccountsScreen extends Component<Props, state> {
+  constructor(props: Props){
+    super(props);
+    this.state = {accounts: [], selectedAccounts: [], refreshing: true};
+  }
 
-    accounts: Array<Account> = [{id: 1, site: "",accountTitle: "g@gmail.com", accountPass: "123"}, 
-                                {id: 2, site: "",accountTitle: "h@yahoo.com", accountPass: "123"}]
+  accountsArr: Account[] = []
 
-    actions = [
-      {
-        //text: "Remove Account",
-        icon: require("../assets/trashbin.png"),
-        name: "btn_Remove",
-        color: "#ff6600",
-        position: 2,
-      },
-      {
-        // text: "Add Account",
-        icon: require("../assets/addIcon.png"),
-        name: "btn_Add",
-        position: 1,
-        color: "#ff6600"
-      }
-    ];
+  actions = [
+    {
+      text: "Remove Account",
+      icon: require("../assets/trashbin.png"),
+      name: "btn_Remove",
+      color: "#ff6600",
+      position: 2,
+    },
+    {
+      text: "Add Account",
+      icon: require("../assets/addIcon.png"),
+      name: "btn_Add",
+      position: 1,
+      color: "#ff6600"
+    }
+  ];
+
+  async componentDidMount() {
+    //Set all Arrays to empty.
+    this.setState({accounts: []});
+    this.accountsArr = [];
+    this.getAccounts();
+  }
+
+  //Account Deletion (Method pending)
+  handleAccountDeletion = async () => {
+
+    for(let i = 0; i <= this.state.selectedAccounts.length; i++)
+      await SecureStore.deleteItemAsync(i.toString());
+
+    // let id = 1;
+    // let value = true;
+    // do {
+    //   let account = await SecureStore.getItemAsync(id.toString());
+
+    //   if(account !== null && id !== key) {
+    //     id++;
+    //   } else if(account !== null && id === key) {
+    //     this.accountsArr.splice(id, 1);
+    //   } else
+    //     value = false;
+    // }while(value === true);
+ }
+
+ getAccounts = async () => {
+   //For loop to iterate over 10 accounts.
+   for(let i = 0; i <= 10; i++) {
+    let account = await SecureStore.getItemAsync(i.toString());
+
+    if(account !== null)
+      this.accountsArr.push(JSON.parse(account));
+    else
+      continue;
+  }
+  //Set state to accounts Array.
+  this.setState({refreshing: false, accounts: this.accountsArr});
+ }
+
+ longPressHandler(accountId: number) {
+  ToastAndroid.show(accountId.toString(), ToastAndroid.SHORT);
+  this.setState({selectedAccounts: [accountId]});
+
+ }
+
+ //RefreshHandler
+ onRefresh = () => {
+  this.setState({refreshing: true, accounts: []});
+  this.accountsArr = [];
   
-    render() {
+  this.getAccounts();
+}
+
+  render() {
+
+    //Pull to Refresh Functionality
+    if(this.state.refreshing) {
+      return(
+        <View style={styles.loaderView}>
+          <ActivityIndicator size='large' color='#ff6600' />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
         <FlatList
           ItemSeparatorComponent={ItemSeparator}
-          data={this.accounts}
+          data={this.state.accounts}
+          ListEmptyComponent={<ListEmpty />}
+          refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)} />}
+          //extraData={this.state.selectedAccounts}
           renderItem={({item}) => {
             return(
-              <ListItem 
-                id={item.id}
-                site={item.site}
-                accountTitle={item.accountTitle}
-                accountPass={item.accountPass}
-              />   
+              <TouchableOpacity activeOpacity={1} onLongPress={() => this.longPressHandler(item.id)}>
+                <ListItem 
+                  id={item.id}
+                  site={item.site}
+                  accountTitle={item.accountTitle}
+                  accountPass={item.accountPass}
+                />
+              </TouchableOpacity>
             )
           }}
           keyExtractor = {(item) => item.id.toString()}
@@ -63,6 +143,8 @@ class AccountsScreen extends Component<Props> {
           onPressItem={name => {
             if(name === "btn_Add") {
               this.props.navigation.navigate('Add Account');
+            } else if(name === "btn_Remove") {
+              this.handleAccountDeletion;
             }
           }}
         />
@@ -74,6 +156,10 @@ class AccountsScreen extends Component<Props> {
   const styles = StyleSheet.create({
     container: {
       flex: 1
+    },
+    loaderView: {
+      flex: 1,
+      marginTop: 250
     }
   });
 
