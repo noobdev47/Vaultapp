@@ -17,7 +17,9 @@ interface Account {
 interface state {
   accounts: Account[];
   selectedAccounts: number[];
+  selectedAccount: number;
   refreshing: boolean;
+  longPressActivated: boolean;
 }
 
 interface Props {
@@ -27,7 +29,7 @@ interface Props {
 class AccountsScreen extends Component<Props, state> {
   constructor(props: Props){
     super(props);
-    this.state = {accounts: [], selectedAccounts: [], refreshing: true};
+    this.state = {accounts: [], selectedAccount: 0,selectedAccounts: [], refreshing: true, longPressActivated: false};
   }
 
   accountsArr: Account[] = []
@@ -59,24 +61,15 @@ class AccountsScreen extends Component<Props, state> {
   //Account Deletion (Method pending)
   handleAccountDeletion = async () => {
 
-    for(let i = 0; i <= this.state.selectedAccounts.length; i++)
-      await SecureStore.deleteItemAsync(i.toString());
-
-    // let id = 1;
-    // let value = true;
-    // do {
-    //   let account = await SecureStore.getItemAsync(id.toString());
-
-    //   if(account !== null && id !== key) {
-    //     id++;
-    //   } else if(account !== null && id === key) {
-    //     this.accountsArr.splice(id, 1);
-    //   } else
-    //     value = false;
-    // }while(value === true);
+    //for(let i = 0; i <= this.state.selectedAccounts.length; i++)
+      await SecureStore.deleteItemAsync(this.state.selectedAccount.toString());
+      this.setState({selectedAccount: 0, accounts:[]});
+      this.accountsArr = [];
+      this.getAccounts();
  }
 
- getAccounts = async () => {
+  //Retrieves accounts from Secure Storage.
+  getAccounts = async () => {
    //For loop to iterate over 10 accounts.
    for(let i = 0; i <= 10; i++) {
     let account = await SecureStore.getItemAsync(i.toString());
@@ -88,20 +81,22 @@ class AccountsScreen extends Component<Props, state> {
   }
   //Set state to accounts Array.
   this.setState({refreshing: false, accounts: this.accountsArr});
+  console.log(this.accountsArr);
  }
 
+ //longPress Handler for deleting Accounts.
  longPressHandler(accountId: number) {
   ToastAndroid.show(accountId.toString(), ToastAndroid.SHORT);
-  this.setState({selectedAccounts: [accountId]});
+  this.setState({longPressActivated: true, selectedAccount: accountId});
 
  }
 
- //RefreshHandler
+ //RefreshHandler for refreshing manually.
  onRefresh = () => {
-  this.setState({refreshing: true, accounts: []});
+  this.setState({refreshing: true, accounts: [], selectedAccount: 0});
   this.accountsArr = [];
-  
   this.getAccounts();
+
 }
 
   render() {
@@ -122,7 +117,7 @@ class AccountsScreen extends Component<Props, state> {
           data={this.state.accounts}
           ListEmptyComponent={<ListEmpty />}
           refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)} />}
-          //extraData={this.state.selectedAccounts}
+          extraData={this.state.selectedAccount}
           renderItem={({item}) => {
             return(
               <TouchableOpacity activeOpacity={1} onLongPress={() => this.longPressHandler(item.id)}>
@@ -144,7 +139,7 @@ class AccountsScreen extends Component<Props, state> {
             if(name === "btn_Add") {
               this.props.navigation.navigate('Add Account');
             } else if(name === "btn_Remove") {
-              this.handleAccountDeletion;
+              this.handleAccountDeletion();
             }
           }}
         />
