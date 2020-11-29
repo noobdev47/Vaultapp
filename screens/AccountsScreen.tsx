@@ -43,10 +43,10 @@ class AccountsScreen extends Component<Props, state> {
 
   //Account Deletion
   handleAccountDeletion = async () => {
-      await SecureStore.deleteItemAsync(this.state.selectedAccount.toString());
-      this.setState({selectedAccount: 0, accounts:[], longPressActivated: false});
-      this.accountsArr = [];
-      this.getAccounts();
+    await SecureStore.deleteItemAsync(this.state.selectedAccount.toString());
+    this.setState({selectedAccount: 0, accounts:[], longPressActivated: false});
+    this.accountsArr = [];
+    this.getAccounts();
  }
 
   //Retrieves accounts from Secure Storage.
@@ -60,24 +60,25 @@ class AccountsScreen extends Component<Props, state> {
     else
       continue;
   }
-  //Set state to accounts Array.
-  this.setState({refreshing: false, accounts: this.accountsArr});
-  console.log(this.accountsArr);
+    //Set state to accounts Array.
+    this.setState({refreshing: false, accounts: this.accountsArr});
+    console.log(this.accountsArr);
  }
 
  //longPress Handler for deleting Accounts.
  longPressHandler(accountId: number) {
-  ToastAndroid.show(accountId.toString(), ToastAndroid.SHORT);
-  this.setState({longPressActivated: true, selectedAccount: accountId});
+    ToastAndroid.show(accountId.toString(), ToastAndroid.SHORT);
+    this.setState({longPressActivated: true, selectedAccount: accountId});
  }
 
  //RefreshHandler for refreshing manually.
- onRefresh = () => {
-  this.setState({refreshing: true, accounts: [], selectedAccount: 0});
-  this.accountsArr = [];
-  this.getAccounts();
-}
+  onRefresh = () => {
+    this.setState({refreshing: true, accounts: [], selectedAccount: 0});
+    this.accountsArr = [];
+    this.getAccounts();
+ }
 
+ //Handler for transitioning fab from add to delete and vice versa.
   fabHandler = () => {
     if(this.state.longPressActivated === true)
       this.handleAccountDeletion();
@@ -105,8 +106,9 @@ class AccountsScreen extends Component<Props, state> {
           refreshControl={<RefreshControl colors={['#ff6600']} refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)} />}
           extraData={this.state.selectedAccount}
           renderItem={({item}) => {
+            const backgroundColor = item.id === (this.state.selectedAccount) ? "#ff8533" : "white";
             return(
-              <TouchableOpacity activeOpacity={1} onLongPress={() => this.longPressHandler(item.id)}>
+              <TouchableOpacity style={{backgroundColor}} activeOpacity={1} onLongPress={() => this.longPressHandler(item.id)}>
                 <ListItem
                   id={item.id}
                   site={item.site}
@@ -131,14 +133,14 @@ class AccountsScreen extends Component<Props, state> {
   }
 }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1
-    },
-    loaderView: {
-      flex: 1,
-      marginTop: 250
-    }
-  });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  loaderView: {
+    flex: 1,
+    marginTop: 250
+  }
+});
 
-  export default AccountsScreen;
+export default AccountsScreen;

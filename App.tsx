@@ -11,7 +11,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Accounts" component={AccountsScreen} />
+        <Stack.Screen name="VaultApp" component={AccountsScreen} />
         <Stack.Screen name="Add Account" component={AccountAddScreen} />
       </Stack.Navigator>
     </NavigationContainer>

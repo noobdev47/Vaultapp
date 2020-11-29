@@ -64,7 +64,7 @@ class AccountAddScreen extends Component<Props, AddScreenState> {
             if(storeAvailable === true) {
                 SecureStore.setItemAsync(key, JSON.stringify(account));
                 ToastAndroid.show("Account Added", ToastAndroid.SHORT);
-           } else
+            } else
                 ToastAndroid.show("Storage not Available", ToastAndroid.SHORT);
         }
         return (
@@ -147,6 +147,6 @@ const styles = StyleSheet.create({
         width: 130
     }
 
-  });
+});
 
 export default AccountAddScreen;
