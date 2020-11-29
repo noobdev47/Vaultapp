@@ -60,8 +60,6 @@ class AccountsScreen extends Component<Props, state> {
 
   //Account Deletion (Method pending)
   handleAccountDeletion = async () => {
-
-    //for(let i = 0; i <= this.state.selectedAccounts.length; i++)
       await SecureStore.deleteItemAsync(this.state.selectedAccount.toString());
       this.setState({selectedAccount: 0, accounts:[]});
       this.accountsArr = [];
