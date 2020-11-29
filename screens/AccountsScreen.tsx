@@ -34,23 +34,6 @@ class AccountsScreen extends Component<Props, state> {
 
   accountsArr: Account[] = []
 
-  actions = [
-    {
-      text: "Remove Account",
-      icon: require("../assets/trashbin.png"),
-      name: "btn_Remove",
-      color: "#ff6600",
-      position: 2,
-    },
-    {
-      text: "Add Account",
-      icon: require("../assets/addIcon.png"),
-      name: "btn_Add",
-      position: 1,
-      color: "#ff6600"
-    }
-  ];
-
   async componentDidMount() {
     //Set all Arrays to empty.
     this.setState({accounts: [], selectedAccount: 0});
