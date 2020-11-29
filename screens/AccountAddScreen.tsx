@@ -32,7 +32,7 @@ class AccountAddScreen extends Component<Props, AddScreenState> {
 
     async componentDidMount() {
         //Set Id for next account in start by counting previous accounts stored.
-        let key = 1;
+        let key = 0;
         
         for(let i = key; i <= 10; i++){
             let account = await SecureStore.getItemAsync(i.toString());

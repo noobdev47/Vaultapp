@@ -53,7 +53,7 @@ class AccountsScreen extends Component<Props, state> {
 
   async componentDidMount() {
     //Set all Arrays to empty.
-    this.setState({accounts: []});
+    this.setState({accounts: [], selectedAccount: 0});
     this.accountsArr = [];
     this.getAccounts();
   }
@@ -114,7 +114,7 @@ class AccountsScreen extends Component<Props, state> {
           ItemSeparatorComponent={ItemSeparator}
           data={this.state.accounts}
           ListEmptyComponent={<ListEmpty />}
-          refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)} />}
+          refreshControl={<RefreshControl colors={['#ff6600']} refreshing={this.state.refreshing} onRefresh={this.onRefresh.bind(this)} />}
           extraData={this.state.selectedAccount}
           renderItem={({item}) => {
             return(
