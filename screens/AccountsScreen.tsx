@@ -58,10 +58,10 @@ class AccountsScreen extends Component<Props, state> {
     this.getAccounts();
   }
 
-  //Account Deletion (Method pending)
+  //Account Deletion
   handleAccountDeletion = async () => {
       await SecureStore.deleteItemAsync(this.state.selectedAccount.toString());
-      this.setState({selectedAccount: 0, accounts:[]});
+      this.setState({selectedAccount: 0, accounts:[], longPressActivated: false});
       this.accountsArr = [];
       this.getAccounts();
  }
@@ -86,7 +86,6 @@ class AccountsScreen extends Component<Props, state> {
  longPressHandler(accountId: number) {
   ToastAndroid.show(accountId.toString(), ToastAndroid.SHORT);
   this.setState({longPressActivated: true, selectedAccount: accountId});
-
  }
 
  //RefreshHandler for refreshing manually.
@@ -94,8 +93,14 @@ class AccountsScreen extends Component<Props, state> {
   this.setState({refreshing: true, accounts: [], selectedAccount: 0});
   this.accountsArr = [];
   this.getAccounts();
-
 }
+
+  fabHandler = () => {
+    if(this.state.longPressActivated === true)
+      this.handleAccountDeletion();
+    else 
+      this.props.navigation.navigate('Add Account');
+  }
 
   render() {
 
@@ -119,7 +124,7 @@ class AccountsScreen extends Component<Props, state> {
           renderItem={({item}) => {
             return(
               <TouchableOpacity activeOpacity={1} onLongPress={() => this.longPressHandler(item.id)}>
-                <ListItem 
+                <ListItem
                   id={item.id}
                   site={item.site}
                   accountTitle={item.accountTitle}
@@ -131,15 +136,12 @@ class AccountsScreen extends Component<Props, state> {
           keyExtractor = {(item) => item.id.toString()}
         />
         <FloatingAction
-          actions={this.actions}
           color="#ff6600"
-          onPressItem={name => {
-            if(name === "btn_Add") {
-              this.props.navigation.navigate('Add Account');
-            } else if(name === "btn_Remove") {
-              this.handleAccountDeletion();
-            }
-          }}
+          floatingIcon={this.state.longPressActivated ? require("../assets/trash.png") : require("../assets/plus.png")}
+          onPressMain={this.fabHandler}
+          distanceToEdge={20}
+          showBackground={false}
+          buttonSize={50}
         />
       </View>
     );
