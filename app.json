@@ -3,7 +3,7 @@
     "name": "Vaultapp",
     "description": "An App for storing account credentials securely",
     "slug": "Vaultapp",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/VaultappIcon.png",
     "splash": {
